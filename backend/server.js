@@ -1,2 +1,10 @@
-const a = 19;
-console.log(a);
+import app from "./src/app.js";
+import connectDB from "./src/config/db.js";
+
+connectDB();
+
+const PORT = 5000;
+
+app.listen(PORT, () => {
+  console.log(`Server running on port http://localhost:${PORT}`);
+});
