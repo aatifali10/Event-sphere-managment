@@ -1,5 +1,6 @@
 import User from "../models/user.model.js";
 import bcrypt from "bcryptjs";
+import crypto from "crypto";
 import { generateToken } from "../utils/generateToken.js";
 
 export const register = async (req, res) => {
@@ -37,4 +38,32 @@ export const login = async (req, res) => {
     token: generateToken(user._id, user.role),
     role: user.role,
   });
+};
+
+export const forgotPassword = async (req, res) => {
+  const user = await User.findOne({ email: req.body.email });
+  if (!user) return res.status(404).json({ message: "User not found" });
+
+  const token = crypto.randomBytes(32).toString("hex");
+  user.resetToken = token;
+  user.resetTokenExpiry = Date.now() + 15 * 60 * 1000;
+  await user.save();
+
+  res.json({ message: "Reset link sent to email" });
+};
+
+export const resetPassword = async (req, res) => {
+  const user = await User.findOne({
+    resetToken: req.params.token,
+    resetTokenExpiry: { $gt: Date.now() },
+  });
+
+  if (!user) return res.status(400).json({ message: "Invalid token" });
+
+  user.password = await bcrypt.hash(req.body.password, 12);
+  user.resetToken = undefined;
+  user.resetTokenExpiry = undefined;
+  await user.save();
+
+  res.json({ message: "Password reset successful" });
 };
