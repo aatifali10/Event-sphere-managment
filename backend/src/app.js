@@ -13,7 +13,7 @@ app.use("/api/auth", authRoutes);
 app.use("/api/admin", adminRoutes);
 
 app.get("/", (req, res) => {
-  res.send("Event Sphere Backend Running 🚀");
+  res.send("Event Sphere Backend Running ");
 });
 
 app.use(errorHandler);
